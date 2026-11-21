@@ -1,1 +1,307 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JEE Question Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#f3f4f6;color:#111;min-height:100vh}
+header{background:#1a56db;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+header h1{font-size:16px}header button{background:rgba(255,255,255,.2);border:0;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:14px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #e5e7eb}
+.card h2{font-size:14px;margin-bottom:10px;color:#374151}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:8px 14px;border-radius:18px;border:1.5px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;font-family:inherit}
+.chip.on{background:#1a56db;color:#fff;border-color:#1a56db}
+select,input{padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;width:100%;font-family:inherit}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.btn{display:block;width:100%;padding:13px;border-radius:10px;border:0;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
+.btn-pri{background:#1a56db;color:#fff}.btn-ok{background:#059669;color:#fff}.btn-out{background:#fff;color:#1a56db;border:1.5px solid #1a56db}
+.chaps{max-height:220px;overflow-y:auto;margin-top:8px;border:1px solid #e5e7eb;border-radius:8px}
+.chap{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #e5e7eb;font-size:13px;cursor:pointer}
+.chap:last-child{border-bottom:0}.chap input{width:18px;height:18px;accent-color:#1a56db}
+.screen{display:none}.screen.on{display:block}
+.tbar{background:#1f2937;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:99;font-size:13px}
+.tbar .t{font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.qh{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px}
+.qn{font-weight:700;color:#1a56db}
+.qt{font-size:15px;line-height:1.6;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:14px;background:#fff}
+.opt.sel{border-color:#1a56db;background:#eff6ff}
+.opt .lt{width:26px;height:26px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.opt.sel .lt{background:#1a56db;color:#fff}
+.opt .oc{flex:1}
+.qnav{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.qnav .btn{width:auto;flex:1;padding:11px;font-size:13px;margin-top:0}
+.palbtn{position:fixed;bottom:16px;right:16px;width:54px;height:54px;border-radius:50%;background:#1a56db;color:#fff;border:0;font-size:22px;z-index:150;cursor:pointer;box-shadow:0 4px 16px rgba(26,86,219,.4)}
+.pal{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px 14px;z-index:200;max-height:70vh;overflow-y:auto;display:none}
+.pal.on{display:block}
+.palgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.pb{height:40px;border-radius:8px;border:0;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;background:#e5e7eb;color:#374151}
+.pb.ans{background:#059669;color:#fff}.pb.mk{background:#7c3aed;color:#fff}.pb.cur{outline:3px solid #1a56db;outline-offset:2px}
+.score{text-align:center;padding:20px 0}
+.cir{width:130px;height:130px;border-radius:50%;border:6px solid #1a56db;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 12px}
+.cir b{font-size:34px;color:#1a56db;line-height:1}.cir small{font-size:12px;color:#6b7280}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.st{background:#f3f4f6;padding:12px;border-radius:10px;text-align:center}
+.st b{font-size:20px;display:block}.st small{font-size:11px;color:#6b7280}
+.sol{margin-top:10px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.solh{padding:12px;background:#f3f4f6;display:flex;justify-content:space-between;cursor:pointer;font-size:13px;align-items:center;gap:8px}
+.solh.ok{border-left:4px solid #059669}.solh.no{border-left:4px solid #dc2626}.solh.un{border-left:4px solid #6b7280}
+.solb{padding:12px;display:none;font-size:13px;line-height:1.6;background:#fff}
+.solb.on{display:block}
+.bd{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.bd.ok{background:#d1fae5;color:#065f46}.bd.no{background:#fee2e2;color:#991b1b}.bd.un{background:#f3f4f6;color:#4b5563}
+.hist{padding:12px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:13px;gap:8px}
+.hist:last-child{border-bottom:0}.hm{font-size:11px;color:#6b7280;margin-top:2px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;z-index:400;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1}
+.mod{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
+.mod.on{display:flex}
+.mbox{background:#fff;border-radius:16px;padding:20px;max-width:400px;width:100%}
+.mbox h3{margin-bottom:8px;font-size:16px}.mbox p{font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.5}
+a{color:#1a56db;font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 JEE Question Generator</h1>
+  <div><button onclick="go('history')">📊</button> <button onclick="openSet()">⚙️</button></div>
+</header>
+
+<!-- SETUP -->
+<div id="setup" class="screen on"><div class="wrap">
+  <div class="card">
+    <h2>Subject</h2>
+    <div class="chips" id="subch">
+      <button class="chip on" data-s="Physics">Physics</button>
+      <button class="chip" data-s="Chemistry">Chemistry</button>
+      <button class="chip" data-s="Mathematics">Mathematics</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Class & Chapters</h2>
+    <div class="chips" id="clsch" style="margin-bottom:8px">
+      <button class="chip on" data-c="both">Both</button>
+      <button class="chip" data-c="11">Class 11</button>
+      <button class="chip" data-c="12">Class 12</button>
+    </div>
+    <div class="chaps" id="chaps"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px">
+      <span id="ccount" style="color:#6b7280">0 selected</span>
+      <button onclick="selAll()" style="background:none;border:0;color:#1a56db;font-weight:600;cursor:pointer">Select All</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Pattern</h2>
+    <div class="chips" id="patch">
+      <button class="chip on" data-p="main">JEE Main</button>
+      <button class="chip" data-p="advanced">JEE Advanced</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Configure</h2>
+    <div class="row">
+      <div><label style="font-size:12px;font-weight:600">Questions</label><input type="number" id="cnt" value="10" min="1" max="50"></div>
+      <div><label style="font-size:12px;font-weight:600">Timer</label>
+        <select id="tmr">
+          <option value="600">10 min</option>
+          <option value="1800" selected>30 min</option>
+          <option value="3600">60 min</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-pri" onclick="startTest()" style="margin-top:14px">🚀 Start Test</button>
+    <p style="font-size:11px;color:#6b7280;text-align:center;margin-top:8px" id="stat"></p>
+  </div>
+</div></div>
+
+<!-- EXAM -->
+<div id="exam" class="screen">
+  <div class="tbar">
+    <span id="etitle">Test</span>
+    <span class="t" id="tdisp">--:--</span>
+    <button onclick="confirmSub()" style="background:#dc2626;border:0;color:#fff;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer">Submit</button>
+  </div>
+  <div style="padding:14px" id="econtent"></div>
+  <button class="palbtn" onclick="togglePal()">☰</button>
+  <div class="pal" id="palpanel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="font-size:15px">Palette</h3>
+      <button onclick="togglePal()" style="background:none;border:0;font-size:22px;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:11px;margin-top:6px;color:#374151">
+      <span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:4px"></span>Answered
+      <span style="display:inline-block;width:10px;height:10px;background:#e5e7eb;border-radius:2px;margin:0 4px 0 12px"></span>Not Answered
+      <span style="display:inline-block;width:10px;height:10px;background:#7c3aed;border-radius:2px;margin:0 4px 0 12px"></span>Marked
+    </div>
+    <div class="palgrid" id="palgrid"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen"><div class="wrap">
+  <div class="card" id="rsum"></div>
+  <div class="card"><h2>📋 Solutions</h2><div id="sols"></div></div>
+  <button class="btn btn-pri" onclick="go('setup')">🔄 New Test</button>
+  <button class="btn btn-out" onclick="go('history')" style="margin-top:8px">📊 History</button>
+</div></div>
+
+<!-- HISTORY -->
+<div id="history" class="screen"><div class="wrap">
+  <div class="card"><h2>📊 History</h2><div id="hlist"></div></div>
+  <button class="btn btn-out" onclick="clearHist()">🗑️ Clear</button>
+  <button class="btn btn-pri" onclick="go('setup')" style="margin-top:8px">🏠 Home</button>
+</div></div>
+
+<!-- SETTINGS -->
+<div class="mod" id="setMod"><div class="mbox">
+  <h3>⚙️ AI Settings (Optional)</h3>
+  <p>Add Google Gemini API key for fresh AI-generated questions. Free at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>. Without key, app uses built-in 30 verified questions.</p>
+  <label style="font-size:12px;font-weight:600">API Key</label>
+  <input type="password" id="apik" placeholder="AIza..." style="margin-top:4px">
+  <button class="btn btn-pri" onclick="saveKey()" style="margin-top:10px">Save</button>
+  <button class="btn btn-out" onclick="closeSet()" style="margin-top:6px">Cancel</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SYL={
+  Physics:{11:["Kinematics","Laws of Motion","Work Energy Power","Rotational Motion","Gravitation","Thermodynamics","Kinetic Theory","Oscillations and Waves"],12:["Electrostatics","Current Electricity","Magnetism","EMI and AC","EM Waves","Optics","Dual Nature","Atoms and Nuclei","Electronic Devices"]},
+  Chemistry:{11:["Atomic Structure","Chemical Bonding","Thermodynamics","Equilibrium","Redox and Electrochemistry","Periodicity","p-Block","Hydrocarbons"],12:["Solutions","Chemical Kinetics","d and f Block","Coordination Compounds","Haloalkanes","Alcohols Phenols Ethers","Aldehydes Ketones","Amines","Biomolecules"]},
+  Mathematics:{11:["Sets Relations Functions","Complex Numbers","Permutations Combinations","Binomial Theorem","Sequence and Series","Straight Lines","Conic Sections","Trigonometry"],12:["Matrices Determinants","Continuity Differentiability","Derivatives","Integrals","Differential Equations","Vectors","3D Geometry","Probability","Inverse Trigonometry"]}
+};
+
+var Q=[
+// PHYSICS
+{s:"Physics",c:"Kinematics",p:"main",t:"mcq",q:"A ball is thrown up with u=20 m/s. g=10 m/s². Max height?",
+ a:"10 m",b:"20 m",d:"5 m",e:"40 m",ans:2,
+ sol:"At max height v=0. v²=u²−2gh → 0=400−20h → h=20 m."},
+{s:"Physics",c:"Kinematics",p:"main",t:"mcq",q:"Train at 60 km/h. Man walks 5 km/h opposite. Relative speed?",
+ a:"55 km/h",b:"60 km/h",d:"70 km/h",e:"65 km/h",ans:4,
+ sol:"Opposite directions → add: 60+5 = 65 km/h."},
+{s:"Physics",c:"Laws of Motion",p:"main",t:"mcq",q:"5 kg block, μ=0.2, g=10. Min force to move?",
+ a:"5 N",b:"10 N",d:"20 N",e:"15 N",ans:2,
+ sol:"Limiting friction = μmg = 0.2×5×10 = 10 N."},
+{s:"Physics",c:"Work Energy Power",p:"main",t:"mcq",q:"2 kg at 4 m/s hits 2 kg at rest, sticks. KE loss?",
+ a:"4 J",b:"8 J",d:"2 J",e:"16 J",ans:2,
+ sol:"KEi=½(2)(16)=16J. v=8/4=2. KEf=½(4)(4)=8J. Loss=8J."},
+{s:"Physics",c:"Rotational Motion",p:"main",t:"mcq",q:"MOI of solid sphere about diameter?",
+ a:"MR²",b:"(2/5)MR²",d:"(2/3)MR²",e:"(1/2)MR²",ans:2,
+ sol:"Solid sphere: I = (2/5)MR²."},
+{s:"Physics",c:"Gravitation",p:"main",t:"mcq",q:"At height=R above Earth, g becomes?",
+ a:"g/2",b:"g/4",d:"2g",e:"g/8",ans:2,
+ sol:"g'=g(R/(R+h))²=g/4 at h=R."},
+{s:"Physics",c:"Thermodynamics",p:"main",t:"mcq",q:"First law of thermodynamics?",
+ a:"ΔQ=ΔU−W",b:"ΔQ=ΔU+W",d:"ΔU=ΔQ+W",e:"ΔQ+ΔU+W=0",ans:2,
+ sol:"Heat = Internal energy change + Work: ΔQ=ΔU+W."},
+{s:"Physics",c:"Kinetic Theory",p:"main",t:"mcq",q:"RMS speed proportional to?",
+ a:"T",b:"√T",d:"1/√T",e:"1/T",ans:2,
+ sol:"v_rms = √(3RT/M) ∝ √T."},
+{s:"Physics",c:"Electrostatics",p:"main",t:"mcq",q:"+q and −q separated by 2a. V at midpoint?",
+ a:"kq/a",b:"2kq/a",d:"kq/2a",e:"0",ans:4,
+ sol:"V = kq/a − kq/a = 0."},
+{s:"Physics",c:"Current Electricity",p:"main",t:"mcq",q:"Wire R stretched to 2× length. New R?",
+ a:"R/2",b:"R",d:"4R",e:"2R",ans:4,
+ sol:"R∝L², so 2²=4× → 4R."},
+// CHEMISTRY
+{s:"Chemistry",c:"Atomic Structure",p:"main",t:"mcq",q:"Radial nodes in 3p orbital?",
+ a:"0",b:"1",d:"3",e:"2",ans:2,
+ sol:"Radial nodes = n−l−1 = 3−1−1 = 1."},
+{s:"Chemistry",c:"Chemical Bonding",p:"main",t:"mcq",q:"Shape of NH₄⁺?",
+ a:"Square planar",b:"Tetrahedral",d:"See-saw",e:"Trigonal pyramidal",ans:2,
+ sol:"4 bond pairs, 0 lone pairs → sp³ → tetrahedral."},
+{s:"Chemistry",c:"Thermodynamics",p:"main",t:"mcq",q:"Spontaneous at const T,P requires?",
+ a:"ΔG>0",b:"ΔG=0",d:"ΔH<0 always",e:"ΔG<0",ans:4,
+ sol:"Spontaneity: ΔG_system < 0."},
+{s:"Chemistry",c:"Equilibrium",p:"main",t:"mcq",q:"pH of 0.01 M HCl?",
+ a:"1",b:"2",d:"7",e:"12",ans:2,
+ sol:"[H⁺]=10⁻², pH=−log(10⁻²)=2."},
+{s:"Chemistry",c:"Redox and Electrochemistry",p:"main",t:"mcq",q:"Oxidation state of Fe in K₄[Fe(CN)₆]?",
+ a:"+1",b:"+2",d:"0",e:"+3",ans:2,
+ sol:"4(+1)+x+6(−1)=0 → x=+2."},
+{s:"Chemistry",c:"p-Block",p:"main",t:"mcq",q:"Most abundant noble gas in air?",
+ a:"He",b:"Ne",d:"Kr",e:"Ar",ans:4,
+ sol:"Argon ~0.934% of air."},
+{s:"Chemistry",c:"Chemical Kinetics",p:"main",t:"mcq",q:"Half-life of first-order reaction?",
+ a:"1/k",b:"0.693/k",d:"k/0.693",e:"2/k",ans:2,
+ sol:"t₁/₂ = ln(2)/k = 0.693/k."},
+{s:"Chemistry",c:"Coordination Compounds",p:"main",t:"mcq",q:"Coordination number of Co in [Co(NH₃)₆]³⁺?",
+ a:"3",b:"6",d:"8",e:"4",ans:2,
+ sol:"Six NH₃ ligands → coordination number 6."},
+{s:"Chemistry",c:"Aldehydes Ketones",p:"main",t:"mcq",q:"Which gives Tollens' test?",
+ a:"Acetone",b:"Acetaldehyde",d:"Benzophenone",e:"tert-Butanol",ans:2,
+ sol:"Only aldehydes reduce Tollens' reagent. Acetaldehyde=aldehyde."},
+{s:"Chemistry",c:"Biomolecules",p:"main",t:"mcq",q:"Glucose is a?",
+ a:"Ketohexose",b:"Aldohexose",d:"Ketopentose",e:"Aldopentose",ans:2,
+ sol:"6 carbons + aldehyde group → aldohexose."},
+// MATHS
+{s:"Mathematics",c:"Sets Relations Functions",p:"main",t:"mcq",q:"Power set of 3-element set has how many elements?",
+ a:"3",b:"8",d:"9",e:"6",ans:2,
+ sol:"2³ = 8 elements."},
+{s:"Mathematics",c:"Complex Numbers",p:"main",t:"mcq",q:"Modulus of z = 3+4i?",
+ a:"3",b:"5",d:"7",e:"4",ans:2,
+ sol:"|z|=√(9+16)=5."},
+{s:"Mathematics",c:"Complex Numbers",p:"main",t:"mcq",q:"Argument of 1+i?",
+ a:"0",b:"π/4",d:"π",e:"π/2",ans:2,
+ sol:"arg(1+i)=arctan(1/1)=π/4."},
+{s:"Mathematics",c:"Permutations Combinations",p:"main",t:"mcq",q:"Distinct arrangements of 'JEE'?",
+ a:"3",b:"6",d:"24",e:"12",ans:1,
+ sol:"3!/2! = 3."},
+{s:"Mathematics",c:"Sequence and Series",p:"main",t:"mcq",q:"Sum of first 10 terms of 2,5,8,...?",
+ a:"145",b:"155",d:"175",e:"165",ans:2,
+ sol:"a=2,d=3. S=(10/2)(4+27)=155."},
+{s:"Mathematics",c:"Straight Lines",p:"main",t:"mcq",q:"Slope of 2x+3y=6?",
+ a:"2/3",b:"−2/3",d:"−3/2",e:"3/2",ans:2,
+ sol:"y=2−(2/3)x, slope=−2/3."},
+{s:"Mathematics",c:"Matrices Determinants",p:"main",t:"mcq",q:"|A|=4, 3×3 matrix. |2A|?",
+ a:"8",b:"32",d:"64",e:"16",ans:2,
+ sol:"|kA|=kⁿ|A|=2³×4=32."},
+{s:"Mathematics",c:"Integrals",p:"main",t:"mcq",q:"∫₀^(π/2) sin x dx?",
+ a:"0",b:"1",d:"π/2",e:"2",ans:2,
+ sol:"[−cos x]₀^(π/2) = 0+1 = 1."},
+{s:"Mathematics",c:"Derivatives",p:"main",t:"mcq",q:"d/dx[sin(x²)]?",
+ a:"cos(x²)",b:"2x·cos(x²)",d:"x²·cos(x²)",e:"2x·sin(x²)",ans:2,
+ sol:"Chain rule: cos(x²)·2x."},
+{s:"Mathematics",c:"Probability",p:"main",t:"mcq",q:"P(prime) on single fair die?",
+ a:"1/6",b:"1/2",d:"2/3",e:"1/3",ans:2,
+ sol:"Primes {2,3,5} → 3/6 = 1/2."}
+];
+
+var ST={sub:"Physics",cls:"both",chs:new Set(),pat:"main",ex:{qs:[],i:0,ans:{},mk:new Set(),seen:new Set(),start:0,tl:0,tid:null,done:false,cfg:null}};
+
+function $(id){return document.getElementById(id)}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},2500)}
+function lsG(k,d){try{var v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
+function lsS(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsD(k){try{localStorage.removeItem(k)}catch(e){}}
+function go(n){var ss=document.querySelectorAll(".screen");for(var i=0;i<ss.length;i++)ss[i].classList.remove("on");$(n).classList.add("on");window.scrollTo(0,0);if(n==="history")drawHist()}
+function openSet(){$("apik").value=lsG("gkey","");$("setMod").classList.add("on")}
+function closeSet(){$("setMod").classList.remove("on")}
+function saveKey(){var k=$("apik").value.trim();if(k)lsS("gkey",k);else lsD("gkey");closeSet();updStat();toast(k?"✓ Key saved":"Removed")}
+function updStat(){var el=$("stat");var has=!!lsG("gkey","");el.textContent=has?"✅ AI enabled":"ℹ️ Using built-in 30 questions";el.style.color=has?"#059669":"#6b7280"}
+
+function wire(sel,cb){var cs=document.querySelectorAll(sel+" .chip");for(var i=0;i<cs.length;i++){(function(b){b.onclick=function(){var s=document.querySelectorAll(sel+" .chip");for(var j=0;j<s.length;j++)s[j].classList.remove("on");b.classList.add("on");cb(b)}})(cs[i])}}
+
+function init(){
+  wire("#subch",function(b){ST.sub=b.dataset.s;ST.chs.clear();drawChaps()});
+  wire("#clsch",function(b){ST.cls=b.dataset.c;ST.chs.clear();drawChaps()});
+  wire("#patch",function(b){ST.pat=b.dataset.p});
+  drawChaps();updStat();
+}
+function getChaps(){var s=SYL[ST.sub];if(!s)return[];if(ST.cls==="both")return s[11].concat(s[12]);return s[parseInt(ST.cls)].slice()}
+function drawChaps(){var c=$("chaps");var list=getChaps();c.innerHTML="";if(!list.length){c.innerHTML='<p style="padding:10px;font-size:12px;color:#6b7280">None</p>';updCount();return}list.forEach(function(ch){var d=document.createElement("label");d.className="chap";d.innerHTML='<input type="checkbox"'+(ST.chs.has(ch)?" checked":"")+'><span>'+ch+'</span>';var cb=d.querySelector("input");cb.onchange=function(){if(cb.checked)ST.chs.add(ch);else ST.chs.delete(ch);updCount()};c.appendChild(d)});updCount()}
+function updCount(){$("ccount").textContent=ST.chs.size+" selected"}
+function selAll(){ST.chs=new Set(getChaps());drawChaps()}
+
+async function genAI(sub,chs,pat,ct){
+  var k=lsG("gkey","");if(!k)throw new Error("No key");
+  var pr="Generate "+ct+" JEE questions for "+sub+", chapters: "+chs.join(",")+". Pattern: "+pat+". Use plain Unicode math (π,√,²). Return JSON only: {\"questions\":[{\"question_text\":\"...\",\"option_a\":\"...\",\"option_b\":\"...\",\"option_c\":\"...\",\"option_d\":\"...\",\"correct_option\":1,\"solution\":\"...\",\"difficulty\":\"Easy\"}]}";
+  var r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+encodeURIComponent(k),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:pr}]}],generationConfig:{temperature:0.9,maxOutputTo
